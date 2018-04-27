@@ -1,5 +1,6 @@
 package edu.android.dustdrug;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -96,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
-
-
     }
 
 
@@ -135,4 +134,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // TODO: 블루투스 페어링
+//    public void onActivityResult(int requestCode, int resultCode, Intent data){
+//        Log.i(TAG, "onActivityResult " + resultCode);
+//
+//        switch (requestCode) {
+//            case REQUEST_CONNECT_DEVICE:
+//                if (resultCode == Activity.RESULT_OK) {
+//                    btService.getDeviceInfo(data);
+//                }
+//                break;
+//            case REQUEST_ENABLE_BT:
+//                if (resultCode == Activity.RESULT_OK) {
+//                    btService.scanDevice();
+//                } else {
+//                    Log.i(TAG, "Bluetooth is not enabled");
+//                }
+//                break;
+//        }
+//    }
 }

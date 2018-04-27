@@ -1,13 +1,17 @@
 package edu.android.dustdrug;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -35,6 +39,8 @@ import java.util.ArrayList;
 public class MainFragment extends Fragment {
     public static final String TAG = "edu.android";
     private static final int REQ_CODE_PERMISSION = 1;
+    private static final int REQUEST_CONNECT_DEVICE = 1;
+    private static final int REQUEST_ENABLE_BT = 2;
 
     public double longtitude;
     public double latitude;
@@ -48,6 +54,9 @@ public class MainFragment extends Fragment {
     public TextView txtGeo;
     public Button btnGeo;
     public Button btnAddress;
+    public Button btnblue;
+    public BluetoothService btService = null;
+    private Handler mHandler = null;
 
 
     public MainFragment() {
@@ -62,6 +71,31 @@ public class MainFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         lineChart = view.findViewById(R.id.chartValueEveryHour);
+        btnblue = view.findViewById(R.id.btnPairing);
+
+        btnblue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHandler = new Handler(){
+                    @Override
+                    public void handleMessage(Message msg) {
+                        super.handleMessage(msg);
+                    }
+
+                };
+                if(btService == null){
+                    btService = new BluetoothService(getActivity(), mHandler);
+                }
+                if(btService.getDeviceState()) {
+                    // 블루투스가 지원 가능한 기기일 때
+                    btService.enableBluetooth();
+                } else {
+                    //finish();
+                    return;
+                }
+            }
+        });
+
 
         ArrayList<Entry> entries = new ArrayList<>();
         entries.add(new Entry(40f, 0));
@@ -113,7 +147,6 @@ public class MainFragment extends Fragment {
 
         textView = view.findViewById(R.id.textLocation);
         btnGeo = view.findViewById(R.id.btnGeo);
-        btnAddress = view.findViewById(R.id.btnAddress);
         txtGeo = view.findViewById(R.id.txtViewAddress);
         textView.setText("Location");
 
@@ -157,6 +190,7 @@ public class MainFragment extends Fragment {
             }
         });
         startLocationService();
+
         return view;
     }
 
@@ -260,4 +294,59 @@ public class MainFragment extends Fragment {
         textView.setText("경도 : " + longtitude + "\n" + "위도 : " + latitude);
         Log.i(TAG,"MainFragment - showLocationInfo");
     }
+
+
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult " + resultCode);
+
+        switch (requestCode) {
+
+            /** 추가된 부분 시작 **/
+            case REQUEST_CONNECT_DEVICE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    btService.getDeviceInfo(data);
+                }
+                break;
+            /** 추가된 부분 끝 **/
+            case REQUEST_ENABLE_BT:
+                // When the request to enable Bluetooth returns
+                if (resultCode == Activity.RESULT_OK) {
+                    // Next Step
+                    btService.scanDevice();
+                } else {
+
+                    Log.d(TAG, "Bluetooth is not enabled");
+                }
+                break;
+        }
+    }
+    class asdasdasd extends Activity{
+        public void onActivityResult (int requestCode, int resultCode, Intent data) {
+            Log.d(TAG, "onActivityResult " + resultCode);
+
+            switch (requestCode) {
+
+                /** 추가된 부분 시작 **/
+                case REQUEST_CONNECT_DEVICE:
+                    // When DeviceListActivity returns with a device to connect
+                    if (resultCode == Activity.RESULT_OK) {
+                        btService.getDeviceInfo(data);
+                    }
+                    break;
+                /** 추가된 부분 끝 **/
+                case REQUEST_ENABLE_BT:
+                    // When the request to enable Bluetooth returns
+                    if (resultCode == Activity.RESULT_OK) {
+                        // Next Step
+                        btService.scanDevice();
+                    } else {
+
+                        Log.d(TAG, "Bluetooth is not enabled");
+                    }
+                    break;
+            }
+        }
+    }
 }
+
