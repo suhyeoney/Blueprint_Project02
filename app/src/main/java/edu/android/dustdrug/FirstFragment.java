@@ -7,15 +7,17 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -26,24 +28,26 @@ import android.widget.TextView;
  * to handle interaction events.
  */
 public class FirstFragment extends Fragment {
-    public int cnt = 0;
+
     private TextView textView;
     private Thread loadingThread;
-    private MainFragment mainFragment;
+    private DustDrugDAOImple daoImple;
     private OnFragmentInteractionListener mListener;
-
     public int longtitude;
     public int latitude;
-
+    private MainActivity mainActivity;
     private LocationManager locationManager;
     private Location location;
+    private Handler handler = new Handler();
 
     public FirstFragment() {
         // Required empty public constructor
+
     }
 
 
-    public static final String TAG = "FirstFragment";
+
+    public static final String TAG = "edu.android";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,55 +55,24 @@ public class FirstFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_first, container, false);
         textView = view.findViewById(R.id.textView);
-        Log.i(TAG, "스레드 전");
-
-        loadingThread = new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    if (cnt == 5)
-                        break;
-                    else {
-                        if (cnt % 4 == 0) {
-                            textView.setText("Loading   ");
-                            cnt++;
-                        } else if (cnt % 4 == 1) {
-                            textView.setText("Loading.  ");
-                            cnt++;
-                        } else if (cnt % 4 == 2) {
-                            textView.setText("Loading.. ");
-                            cnt++;
-                        } else {
-                            textView.setText("Loading...");
-                            cnt++;
-                        }
-                    }
-                    try {
-                        Thread.sleep(1000);
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-//                FragmentManager manager = getActivity().getSupportFragmentManager();
-//                Fragment fragment = manager.findFragmentById(R.id.fragment_container);
-//                FragmentTransaction transaction = manager.beginTransaction();
-//                mainFragment = MainFragment.newInstance();
-//                transaction.replace(R.id.fragment_container, mainFragment);
-//                transaction.commit();
-            }
-
-        };
-        startLocationService();
-
+        Log.i(TAG, "FirstFragment - 스레드 전");
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
- //       loadingThread.start();
+        FackMB fackMB = new FackMB();
+        fackMB.execute();
+        Log.i(TAG, "FirstFragment - fackMB execute");
+
+//        loadingThread.start();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+
+        super.onActivityCreated(savedInstanceState);
     }
 
     public static FirstFragment newInstance() {
@@ -116,6 +89,7 @@ public class FirstFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
+        daoImple.getInstence();
         super.onAttach(context);
     }
 
@@ -124,6 +98,43 @@ public class FirstFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    public void onLoding0() {
+        textView.setText("Loading");
+        Log.i(TAG, "FirstFragment - onLoding0");
+    }
+
+    public void onLoding1() {
+        textView.setText("Loading.");
+        Log.i(TAG, "FirstFragment - onLoding1");
+    }
+
+    public void onLoding2() {
+        textView.setText("Loading..");
+        Log.i(TAG, "FirstFragment - onLoding2");
+    }
+
+    public void onLoding3() {
+        textView.setText("Loading...");
+        Log.i(TAG, "FirstFragment - onLoding3");
+    }
+
+    public void onLoding4() {
+        textView.setText("Complete");
+        Log.i(TAG, "FirstFragment - onLoding4");
+    }
+
+    public void endLoding() {
+        mainActivity = (MainActivity) getActivity();
+        mainActivity.getMainfragment();
+        Log.i(TAG, "FirstFragment - endLoding");
+    }
+
+
 
     public void startLocationService() {
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -145,9 +156,9 @@ public class FirstFragment extends Fragment {
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            Log.i(TAG, "onLocationChanged, location : " + location);
-            longtitude = (int)location.getLongitude();
-            latitude = (int)location.getLatitude();
+            Log.i(TAG, "FirstFragment - onLocationChanged, location : " + location);
+            longtitude = (int) location.getLongitude();
+            latitude = (int) location.getLatitude();
             //TODO : 저장;
         }
 
@@ -177,8 +188,73 @@ public class FirstFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnFragmentInteractionListener{
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+    class FackMB  extends AsyncTask<Void, Integer , Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {// 예시 이부분에 imple 을 생성하면됨
+
+            try {
+                Thread.sleep(500);
+                Log.i(TAG, "FirstFragment - 1초");
+                publishProgress(0);
+                Thread.sleep(500);
+                Log.i(TAG, "FirstFragment - 2초");
+                publishProgress(1);
+                Thread.sleep(500);
+                Log.i(TAG, "FirstFragment - 3초");
+                publishProgress(2);
+                Thread.sleep(500);
+                Log.i(TAG, "FirstFragment - 4초");
+                publishProgress(3);
+                Thread.sleep(500);
+                Log.i(TAG, "FirstFragment - 5초");
+                publishProgress(4);
+                endLoding();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            // doInBackground() 시작하기 전에 UI 업데이트
+            daoImple  = DustDrugDAOImple.getInstence();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            // doInBackground()가 끝났을 때 UI 업데이트
+
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {//publishProgress(4); 를 호출 했을때 UI 작업
+            switch (values[0]) {
+                case 0:
+                    onLoding0();
+                    break;
+                case 1:
+                    onLoding1();
+                    break;
+                case 2:
+                    onLoding2();
+                    break;
+                case 3:
+                    onLoding3();
+                    break;
+                case 4:
+                    onLoding4();
+                    break;
+            }
+        }
+    } // 문제 발생 기술적으로 구현 불가능합니다..
+
+
 }

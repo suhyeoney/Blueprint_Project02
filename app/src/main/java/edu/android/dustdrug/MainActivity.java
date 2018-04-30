@@ -1,7 +1,10 @@
 package edu.android.dustdrug;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -9,30 +12,38 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String TAG = "mainactivity";
+    public static final String TAG = "edu.android";
     private static final int REQUEST_ENABLE_BLUETOOTH = 3;
     private BluetoothAdapter bluetoothAdapter;
     private FirstFragment firstFragment;
+    private MainFragment mainFragment;
     private long lastTimeBackPressed = 0;
+    Geocoder geocoder = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "MainActivity - onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentById(R.id.fragment_container);
-        if (fragment == null) {
-            FragmentTransaction transaction = manager.beginTransaction();
-            firstFragment = FirstFragment.newInstance();
-            transaction.replace(R.id.fragment_container, firstFragment);
-            transaction.commit();
-            Log.i(TAG, "first fragment call");
-        }
+        geocoder = new Geocoder(this);
+//        FragmentManager manager = getSupportFragmentManager();
+//        Fragment fragment = manager.findFragmentById(R.id.fragment_container);
+//        if (fragment == null) {
+//            Log.i(TAG, "fragment == null");
+//            FragmentTransaction transaction = manager.beginTransaction();
+//            firstFragment = FirstFragment.newInstance();
+//            transaction.replace(R.id.fragment_container, firstFragment);
+//            transaction.commit();
+//            Log.i(TAG, "first fragment call");
+//        }
 
 //        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 //        if (bluetoothAdapter == null) {
@@ -47,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(TAG, "MainActivity - onStart");
         // 필요없음.........;;;;
         // public void blueToothPairing(View view) 쓰면 권한 주는 단계 뛰어 넘어짐
 //        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -67,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         if (System.currentTimeMillis() > lastTimeBackPressed + 2000) {
             lastTimeBackPressed = System.currentTimeMillis();
             Toast.makeText(this, "뒤로 버튼 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
-            return;
+//            return;
 
         } else { // back 키 2번 누르면 앱 종료
             finish();
@@ -84,5 +96,28 @@ public class MainActivity extends AppCompatActivity {
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
+
+
     }
+
+
+    public void addressConvert(View view) {
+        Log.i(TAG, "MainActivity - addressConvert");
+    }
+
+    public Object getMainfragment() {
+        Log.i(TAG, "MainActivity - getMainfragment");
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentById(R.id.fragment_container);
+        if (fragment != mainFragment) {
+            FragmentTransaction transaction = manager.beginTransaction();
+            mainFragment = MainFragment.newInstance();
+            transaction.replace(R.id.fragment_container, mainFragment);
+            transaction.commit();
+            Log.i(TAG, "main fragment call");
+        }
+        return mainFragment;
+    }
+
+    // TODO: 블루투스 페어링
 }
